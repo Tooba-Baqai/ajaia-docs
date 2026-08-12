@@ -1,0 +1,74 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  avatarUrl String?
+  role      String   @default("MEMBER")
+  createdAt DateTime @default(now())
+
+  documents Document[]
+  shares    DocumentShare[]
+  revisions DocumentRevision[]
+}
+
+model Document {
+  id         String   @id @default(uuid())
+  title      String   @default("Untitled document")
+  content    String   @default("<p></p>")
+  plainText  String?
+  ownerId    String
+  owner      User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  isPublic   Boolean  @default(false)
+  publicRole String   @default("VIEWER") // "VIEWER" | "EDITOR"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  shares      DocumentShare[]
+  revisions   DocumentRevision[]
+  attachments Attachment[]
+}
+
+model DocumentShare {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       String   @default("VIEWER") // "VIEWER" | "EDITOR"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([documentId, userId])
+}
+
+model DocumentRevision {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  title      String
+  content    String
+  summary    String?
+  savedById  String?
+  savedBy    User?    @relation(fields: [savedById], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Attachment {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  filename   String
+  fileType   String
+  fileSize   Int
+  url        String
+  createdAt  DateTime @default(now())
+}
