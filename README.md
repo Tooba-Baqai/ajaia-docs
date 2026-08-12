@@ -157,3 +157,5 @@ ajaia-docs/
 ├── SUBMISSION.md                # Submission manifest & reviewer guide
 └── WALKTHROUGH.md               # 3-5 min video walkthrough script
 ```
+view deployed project 
+https://ajaia-docs-lfut.vercel.app/
